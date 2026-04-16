@@ -20,6 +20,7 @@ jobs:
 
       - name: Build & Publish
         run: |
+          cd "Doctor Appointment System"
           dotnet restore
           dotnet build -c Release
           dotnet publish -c Release -o publish
@@ -32,12 +33,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /var/www/app
-
-            # Pull latest code
             git pull origin main
 
-            # Build on server (safer)
-            dotnet publish -c Release -o out
+            cd "Doctor Appointment System"
+            dotnet publish -c Release -o /var/www/app/out
 
-            # Restart app
             sudo systemctl restart myapp
