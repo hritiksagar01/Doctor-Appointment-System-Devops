@@ -10,28 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code
+      # 1️⃣ Checkout
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Debug (IMPORTANT - helps you see folder structure)
-      - name: Debug folder structure
-        run: ls -R
-
-      # 3️⃣ Setup .NET
+      # 2️⃣ Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
-      # 4️⃣ Build & Publish (NO FOLDER ISSUE NOW)
+      # 3️⃣ Build & Publish (FIXED)
       - name: Build & Publish
         run: |
-          dotnet restore "Doctor Appointment System.sln"
-          dotnet build "Doctor Appointment System.sln" -c Release
-          dotnet publish "Doctor Appointment System.sln" -c Release -o publish
+          dotnet restore
+          dotnet build -c Release
+          dotnet publish -c Release -o publish
 
-      # 5️⃣ Deploy to Server
+      # 4️⃣ Deploy
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -41,11 +37,8 @@ jobs:
           script: |
             cd /var/www/app
 
-            # Pull latest code
             git pull origin main
 
-            # Build on server (safe)
-            dotnet publish "Doctor Appointment System.sln" -c Release -o /var/www/app/out
+            dotnet publish -c Release -o /var/www/app/out
 
-            # Restart service
             sudo systemctl restart myapp
